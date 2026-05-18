@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'Esprit de la Tarrasque — Association de Jeux de Rôle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg-void: #060402;
+            --bg-deep: #0e0a06;
+            --bg-card: #1c1509;
+            --bg-card-hover: #241c0e;
+            --gold-bright: #e8bc52;
+            --gold: #c09030;
+            --gold-dim: #8a6520;
+            --gold-dark: #4a3512;
+            --crimson: #6e1c1c;
+            --crimson-bright: #aa2828;
+            --crimson-glow: rgba(170,40,40,0.25);
+            --text-bright: #f8edda;
+            --text-primary: #e0c890;
+            --text-secondary: #9a7848;
+            --text-muted: #5a3e28;
+            --border: rgba(192,144,48,0.2);
+            --border-bright: rgba(232,188,82,0.45);
+            --pad-x: clamp(1.5rem, 6vw, 5rem);
+            --pad-sec: clamp(5rem, 10vw, 9rem);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg-void);
+            color: var(--text-primary);
+            font-family: 'EB Garamond', Georgia, serif;
+            font-size: clamp(1rem, 1.1vw + 0.5rem, 1.2rem);
+            line-height: 1.75;
+            overflow-x: hidden;
+        }
+
+        /* Grain overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+            opacity: 0.028;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* ── Nav ─────────────────────────────── */
+        #nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 500;
+            transition: background 0.4s, border-color 0.4s, backdrop-filter 0.4s;
+        }
+        #nav.scrolled {
+            background: rgba(6,4,2,0.93);
+            backdrop-filter: blur(16px) saturate(1.5);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.3rem var(--pad-x);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-brand {
+            font-family: 'Cinzel', serif;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            color: var(--gold-bright);
+            text-decoration: none;
+            text-transform: uppercase;
+        }
+        .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+        .nav-links a {
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.14em;
+            color: var(--text-secondary);
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: color 0.2s;
+            position: relative;
+            padding-bottom: 2px;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 1px;
+            background: var(--gold-bright);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.25s ease;
+        }
+        .nav-links a:hover { color: var(--gold-bright); }
+        .nav-links a:hover::after { transform: scaleX(1); }
+
+        /* ── Hero ─────────────────────────────── */
+        #hero {
+            min-height: 100vh;
+            min-height: 100svh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 7rem var(--pad-x) 5rem;
+            overflow: hidden;
+        }
+        #ember-canvas {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+        .hero-vignette {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 90% 90% at 50% 50%, transparent 20%, rgba(6,4,2,0.75) 100%);
+            pointer-events: none;
+        }
+        .hero-ambiance {
+            position: absolute;
+            width: 800px; height: 400px;
+            background: radial-gradient(ellipse, rgba(110,28,0,0.08) 0%, transparent 70%);
+            top: 50%; left: 50%;
+            transform: translate(-50%,-50%);
+            pointer-events: none;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 920px;
+        }
+        .hero-eyebrow {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(0.6rem, 0.9vw, 0.75rem);
+            letter-spacing: 0.45em;
+            color: var(--gold-dim);
+            text-transform: uppercase;
+            margin-bottom: 2.5rem;
+            opacity: 0;
+            animation: fadeUp 0.9s 0.4s both;
+        }
+        .hero-h1 {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: clamp(2.8rem, 7.5vw, 7rem);
+            font-weight: 900;
+            line-height: 1.0;
+            color: var(--text-bright);
+            margin-bottom: 0.15em;
+            opacity: 0;
+            animation: fadeUp 1.1s 0.6s both;
+        }
+        .hero-h1 em {
+            display: block;
+            font-style: normal;
+            color: var(--gold-bright);
+            text-shadow:
+                0 0 60px rgba(232,188,82,0.3),
+                0 0 120px rgba(232,188,82,0.12);
+        }
+        .hero-tagline {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(0.68rem, 1vw, 0.85rem);
+            letter-spacing: 0.3em;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin: 1.5rem 0 2.5rem;
+            opacity: 0;
+            animation: fadeUp 0.9s 0.9s both;
+        }
+        .hero-desc {
+            font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+            font-style: italic;
+            color: var(--text-primary);
+            max-width: 55ch;
+            margin: 0 auto 3.5rem;
+            opacity: 0;
+            animation: fadeUp 0.9s 1.1s both;
+        }
+        .hero-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.25rem;
+            flex-wrap: wrap;
+            opacity: 0;
+            animation: fadeUp 0.9s 1.3s both;
+        }
+        .btn {
+            font-family: 'Cinzel', serif;
+            font-size: 0.74rem;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            text-decoration: none;
+            padding: 0.95rem 2.4rem;
+            display: inline-block;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn span { position: relative; z-index: 1; }
+        .btn-gold {
+            border: 1px solid var(--gold);
+            color: var(--gold-bright);
+            background: transparent;
+        }
+        .btn-gold::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--gold);
+            transform: translateX(-101%);
+            transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+        }
+        .btn-gold:hover::before { transform: translateX(0); }
+        .btn-gold:hover { color: var(--bg-void); }
+        .btn-ghost {
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            background: transparent;
+        }
+        .btn-ghost:hover { border-color: var(--border-bright); color: var(--text-primary); }
+
+        .hero-ornament {
+            margin-top: 5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.7rem;
+            opacity: 0;
+            animation: fadeIn 1s 1.8s both;
+        }
+        .orn-line { width: 80px; height: 1px; background: linear-gradient(to right, transparent, var(--gold-dim)); }
+        .orn-line.r { background: linear-gradient(to left, transparent, var(--gold-dim)); }
+        .orn-dia { width: 7px; height: 7px; background: var(--gold); transform: rotate(45deg); }
+        .orn-dia.sm { width: 4px; height: 4px; background: var(--gold-dim); }
+
+        /* ── Dividers ─────────────────────────── */
+        hr.rule {
+            border: none;
+            height: 1px;
+            background: linear-gradient(to right, transparent 0%, var(--border-bright) 30%, var(--border-bright) 70%, transparent 100%);
+        }
+
+        /* ── Layout ───────────────────────────── */
+        .sec-wrap { width: 100%; }
+        .sec-wrap-mid { background: var(--bg-deep); }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--pad-sec) var(--pad-x);
+        }
+
+        /* ── Section headers ──────────────────── */
+        .sec-head { text-align: center; margin-bottom: 4rem; }
+        .sec-label {
+            font-family: 'Cinzel', serif;
+            font-size: 0.67rem;
+            letter-spacing: 0.4em;
+            color: var(--gold-dim);
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 1rem;
+        }
+        .sec-title {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: clamp(1.7rem, 4vw, 3rem);
+            font-weight: 700;
+            color: var(--text-bright);
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+        }
+        .sec-rule {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+        .sec-rule .l { width: 50px; height: 1px; background: var(--border); }
+        .sec-rule .d { width: 5px; height: 5px; background: var(--gold); transform: rotate(45deg); }
+
+        /* ── Scroll reveal ────────────────────── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.65s ease, transform 0.65s ease;
+        }
+        .reveal.in { opacity: 1; transform: translateY(0); }
+
+        /* ── À propos ─────────────────────────── */
+        .apropos-layout {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 6rem;
+            align-items: start;
+        }
+        .apropos-body p + p { margin-top: 1.1em; }
+        .apropos-body p:first-child::first-letter {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 3.8em;
+            float: left;
+            line-height: 0.72;
+            margin: 0.06em 0.12em 0 0;
+            color: var(--gold-bright);
+            text-shadow: 0 0 40px rgba(232,188,82,0.2);
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+        }
+        .stat-item {
+            padding: 1.75rem 1.5rem;
+            text-align: center;
+            background: var(--bg-card);
+            transition: background 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-item::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(to right, var(--gold-dark), var(--gold), var(--gold-dark));
+            transform: scaleX(0);
+            transition: transform 0.4s;
+        }
+        .stat-item:hover { background: var(--bg-card-hover); }
+        .stat-item:hover::before { transform: scaleX(1); }
+        .stat-n {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 2.4rem;
+            color: var(--gold-bright);
+            line-height: 1;
+            margin-bottom: 0.4rem;
+        }
+        .stat-l {
+            font-family: 'Cinzel', serif;
+            font-size: 0.62rem;
+            letter-spacing: 0.15em;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        /* ── Games ────────────────────────────── */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+        .game-card {
+            padding: 2rem 1.75rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            position: relative;
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+        }
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: -1px; left: 2rem; right: 2rem;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--gold), transparent);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        .game-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; right: 0;
+            width: 18px; height: 18px;
+            border-bottom: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            transition: border-color 0.3s;
+        }
+        .game-card:hover { border-color: var(--gold-dim); transform: translateY(-3px); box-shadow: 0 16px 48px rgba(0,0,0,0.6); }
+        .game-card:hover::before { opacity: 1; }
+        .game-card:hover::after { border-color: var(--gold-dim); }
+        .game-card.upcoming { opacity: 0.45; border-style: dashed; }
+        .game-sys {
+            font-family: 'Cinzel', serif;
+            font-size: 0.6rem;
+            letter-spacing: 0.22em;
+            color: var(--gold-dim);
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+        .game-name {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-bright);
+            line-height: 1.3;
+            margin-bottom: 0.75rem;
+        }
+        .game-blurb {
+            font-size: 0.93rem;
+            color: var(--text-secondary);
+            line-height: 1.65;
+            margin-bottom: 1.25rem;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.18rem 0.65rem;
+            border: 1px solid var(--gold-dark);
+            font-family: 'Cinzel', serif;
+            font-size: 0.57rem;
+            letter-spacing: 0.14em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        .badge.open { border-color: var(--crimson); color: var(--crimson-bright); }
+
+        /* ── Rejoindre ────────────────────────── */
+        #join { text-align: center; }
+        .join-inner { max-width: 720px; margin: 0 auto; }
+        .join-lead {
+            font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+            font-style: italic;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            max-width: 52ch;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .info-row {
+            display: flex;
+            justify-content: center;
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            margin-bottom: 3rem;
+        }
+        .info-cell {
+            flex: 1;
+            padding: 2rem 1rem;
+            background: var(--bg-card);
+            text-align: center;
+        }
+        .info-icon { font-size: 1.3rem; margin-bottom: 0.7rem; display: block; }
+        .info-key {
+            font-family: 'Cinzel', serif;
+            font-size: 0.58rem;
+            letter-spacing: 0.2em;
+            color: var(--gold-dim);
+            text-transform: uppercase;
+            margin-bottom: 0.35rem;
+            display: block;
+        }
+        .info-val { font-size: 0.93rem; color: var(--text-primary); line-height: 1.45; }
+        .btn-crimson {
+            border: 1px solid var(--crimson-bright);
+            background: var(--crimson);
+            color: var(--text-bright);
+            font-family: 'Cinzel', serif;
+            font-size: 0.76rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            text-decoration: none;
+            padding: 1.1rem 3.5rem;
+            display: inline-block;
+            transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+        }
+        .btn-crimson:hover {
+            background: var(--crimson-bright);
+            box-shadow: 0 0 50px var(--crimson-glow);
+            transform: translateY(-2px);
+        }
+
+        /* ── Footer ───────────────────────────── */
+        #footer {
+            padding: 3.5rem var(--pad-x);
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+        .footer-name {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 1rem;
+            color: var(--gold-dim);
+            margin-bottom: 0.5rem;
+        }
+        .footer-copy {
+            font-family: 'Cinzel', serif;
+            font-size: 0.62rem;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+        }
+
+        /* ── Animations ───────────────────────── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
+        /* ── Responsive ───────────────────────── */
+        @media (max-width: 800px) {
+            .apropos-layout { grid-template-columns: 1fr; gap: 3rem; }
+            .info-row { flex-direction: column; }
+            .nav-links { gap: 1.5rem; }
+        }
+        @media (max-width: 520px) {
+            .nav-links { display: none; }
+            .hero-actions { flex-direction: column; align-items: stretch; }
+            .hero-actions .btn { text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav id="nav">
+    <div class="nav-inner">
+        <a href="#" class="nav-brand">L'Esprit de la Tarrasque</a>
+        <ul class="nav-links">
+            <li><a href="#apropos">À Propos</a></li>
+            <li><a href="#jeux">Nos Jeux</a></li>
+            <li><a href="#rejoindre">Rejoindre</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Hero -->
+<div id="hero">
+    <canvas id="ember-canvas"></canvas>
+    <div class="hero-vignette"></div>
+    <div class="hero-ambiance"></div>
+    <div class="hero-content">
+        <p class="hero-eyebrow">Association de Jeux de Rôle</p>
+        <h1 class="hero-h1">L'Esprit de la<br><em>Tarrasque</em></h1>
+        <p class="hero-tagline">Là où les légendes prennent vie</p>
+        <p class="hero-desc">
+            Plongez dans des récits épiques, forgez des héros légendaires
+            et affrontez des destinées que seul le dé peut sceller.
+        </p>
+        <div class="hero-actions">
+            <a href="#rejoindre" class="btn btn-gold"><span>Rejoindre l'aventure</span></a>
+            <a href="#jeux" class="btn btn-ghost"><span>Découvrir nos tables</span></a>
+        </div>
+    </div>
+    <div class="hero-ornament">
+        <div class="orn-line"></div>
+        <div class="orn-dia sm"></div>
+        <div class="orn-dia"></div>
+        <div class="orn-dia sm"></div>
+        <div class="orn-line r"></div>
+    </div>
+</div>
+
+<hr class="rule">
+
+<!-- À Propos -->
+<div class="sec-wrap" id="apropos">
+    <div class="container">
+        <header class="sec-head reveal">
+            <span class="sec-label">Notre Histoire</span>
+            <h2 class="sec-title">Qui sommes-nous ?</h2>
+            <div class="sec-rule"><div class="l"></div><div class="d"></div><div class="l"></div></div>
+        </header>
+        <div class="apropos-layout">
+            <div class="apropos-body reveal">
+                <p>
+                    Fondée par un groupe de passionnés partageant l'amour des récits
+                    épiques, L'Esprit de la Tarrasque est une association dédiée au
+                    jeu de rôle sous toutes ses formes. Du donjon obscur aux étoiles
+                    lointaines, nos tables accueillent aventuriers en herbe comme
+                    vétérans des mondes imaginaires.
+                </p>
+                <p>
+                    Chaque semaine, nos maîtres du jeu ouvrent les portes de royaumes
+                    oubliés, de conspirations politiques et de mystères indicibles.
+                    Venez écrire avec nous des histoires dont vous serez les héros.
+                </p>
+                <p>
+                    Que vous cherchiez à découvrir votre première partie ou à rejoindre
+                    une campagne en cours, l'association vous accompagne avec enthousiasme
+                    et bienveillance. La tarrasque ne choisit pas ses champions — elle les forge.
+                </p>
+            </div>
+            <div class="reveal" style="--d:0.18s">
+                <div class="stat-grid">
+                    <div class="stat-item"><div class="stat-n">15+</div><div class="stat-l">Membres actifs</div></div>
+                    <div class="stat-item"><div class="stat-n">6</div><div class="stat-l">Tables en cours</div></div>
+                    <div class="stat-item"><div class="stat-n">8</div><div class="stat-l">Systèmes joués</div></div>
+                    <div class="stat-item"><div class="stat-n">∞</div><div class="stat-l">Aventures à venir</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr class="rule">
+
+<!-- Nos Jeux -->
+<div class="sec-wrap sec-wrap-mid" id="jeux">
+    <div class="container">
+        <header class="sec-head reveal">
+            <span class="sec-label">Nos Campagnes</span>
+            <h2 class="sec-title">Nos Univers</h2>
+            <div class="sec-rule"><div class="l"></div><div class="d"></div><div class="l"></div></div>
+        </header>
+        <div class="games-grid">
+            <article class="game-card reveal">
+                <div class="game-sys">Donjons &amp; Dragons 5e</div>
+                <h3 class="game-name">Les Mines de la Montagne Maudite</h3>
+                <p class="game-blurb">Une épopée dans les profondeurs : anciens nains déchus, démons endormis et trésors maudits gardés depuis des siècles.</p>
+                <span class="badge">En cours · 5 joueurs</span>
+            </article>
+            <article class="game-card reveal" style="--d:0.08s">
+                <div class="game-sys">Pathfinder 2e</div>
+                <h3 class="game-name">La Couronne de Fer</h3>
+                <p class="game-blurb">Politique, trahisons et magie noire dans un empire à l'agonie. Chaque alliance peut briser un trône ou en ériger un nouveau.</p>
+                <span class="badge">En cours · 4 joueurs</span>
+            </article>
+            <article class="game-card reveal" style="--d:0.16s">
+                <div class="game-sys">L'Appel de Cthulhu 7e</div>
+                <h3 class="game-name">Le Murmure des Profondeurs</h3>
+                <p class="game-blurb">1920, côte normande. Des villageois disparaissent. Des rêves hantent les survivants. Certaines vérités ne devraient jamais être découvertes.</p>
+                <span class="badge open">Recrutement ouvert</span>
+            </article>
+            <article class="game-card reveal" style="--d:0.08s">
+                <div class="game-sys">Blades in the Dark</div>
+                <h3 class="game-name">Les Fantômes de Doskvol</h3>
+                <p class="game-blurb">Une cité industrielle hantée, un gang en quête de pouvoir, des âmes piégées entre deux mondes. Chaque coup pourrait être le dernier.</p>
+                <span class="badge">En cours · 4 joueurs</span>
+            </article>
+            <article class="game-card reveal" style="--d:0.16s">
+                <div class="game-sys">Warhammer Fantasy RPG 4e</div>
+                <h3 class="game-name">La Marque du Chaos</h3>
+                <p class="game-blurb">Dans l'Empire, la corruption se répand. Des héros ordinaires dans un monde brutal et sans pitié — la mort rôde à chaque carrefour.</p>
+                <span class="badge">En cours · 5 joueurs</span>
+            </article>
+            <article class="game-card upcoming reveal" style="--d:0.24s">
+                <div class="game-sys">Prochainement</div>
+                <h3 class="game-name">Une Nouvelle Table Vous Attend</h3>
+                <p class="game-blurb">Nos maîtres du jeu préparent de nouveaux mondes. Exprimez vos envies — la prochaine aventure sera la vôtre.</p>
+                <span class="badge">À venir</span>
+            </article>
+        </div>
+    </div>
+</div>
+
+<hr class="rule">
+
+<!-- Rejoindre -->
+<div class="sec-wrap" id="rejoindre">
+    <div class="container" id="join">
+        <header class="sec-head reveal">
+            <span class="sec-label">Nous Rejoindre</span>
+            <h2 class="sec-title">Prêt pour l'aventure ?</h2>
+            <div class="sec-rule"><div class="l"></div><div class="d"></div><div class="l"></div></div>
+        </header>
+        <div class="join-inner">
+            <p class="join-lead reveal" style="--d:0.1s">
+                Débutant ou vétéran, toutes les classes sont les bienvenues à notre table.
+                Venez jouer, apprendre et vivre des histoires inoubliables.
+            </p>
+            <div class="info-row reveal" style="--d:0.2s">
+                <div class="info-cell">
+                    <span class="info-icon">⚔️</span>
+                    <span class="info-key">Séances</span>
+                    <span class="info-val">Vendredis soir<br>&amp; week-ends</span>
+                </div>
+                <div class="info-cell">
+                    <span class="info-icon">🏰</span>
+                    <span class="info-key">Lieu</span>
+                    <span class="info-val">Maison des<br>associations</span>
+                </div>
+                <div class="info-cell">
+                    <span class="info-icon">📜</span>
+                    <span class="info-key">Contact</span>
+                    <span class="info-val">contact@<br>tarrasque.fr</span>
+                </div>
+            </div>
+            <div class="reveal" style="--d:0.3s">
+                <a href="mailto:contact@tarrasque.fr" class="btn-crimson">Envoyer un message</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer id="footer">
+    <p class="footer-name">L'Esprit de la Tarrasque</p>
+    <p class="footer-copy">Association de jeux de rôle &nbsp;·&nbsp; Tous droits réservés © 2025</p>
+</footer>
+
+<script>
+// Ember particles
+const canvas = document.getElementById('ember-canvas');
+const ctx = canvas.getContext('2d');
+
+function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resize();
+window.addEventListener('resize', resize, { passive: true });
+
+class Ember {
+    constructor(scatter) { this.reset(scatter); }
+    reset(scatter) {
+        this.x = Math.random() * canvas.width;
+        this.y = scatter ? Math.random() * canvas.height : canvas.height + 8;
+        this.vx = (Math.random() - 0.5) * 0.55;
+        this.vy = -(Math.random() * 1.2 + 0.4);
+        this.a  = Math.random() * 0.5 + 0.15;
+        this.r  = Math.random() * 1.8 + 0.4;
+        this.age = 0;
+        this.life = Math.random() * 220 + 100;
+        this.hue = Math.random() * 35 + 15;
+    }
+    step() {
+        this.x += this.vx + Math.sin(this.age * 0.04) * 0.4;
+        this.y += this.vy;
+        this.age++;
+        if (this.age > this.life * 0.65) this.a *= 0.975;
+        if (this.y < -10 || this.a < 0.01) this.reset(false);
+    }
+    draw() {
+        ctx.save();
+        ctx.globalAlpha = this.a;
+        const c = `hsl(${this.hue},95%,62%)`;
+        ctx.fillStyle = c;
+        ctx.shadowColor = c;
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    }
+}
+
+const embers = Array.from({ length: 55 }, () => new Ember(true));
+(function loop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    embers.forEach(e => { e.step(); e.draw(); });
+    requestAnimationFrame(loop);
+})();
+
+// Nav scroll
+const navEl = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+    navEl.classList.toggle('scrolled', window.scrollY > 60);
+}, { passive: true });
+
+// Scroll reveal with CSS custom property delay
+const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const delay = e.target.style.getPropertyValue('--d') || '0s';
+        e.target.style.transitionDelay = delay;
+        e.target.classList.add('in');
+        obs.unobserve(e.target);
+    });
+}, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
