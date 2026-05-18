@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>L'Esprit de la Tarrasque — Association de Jeux de Rôle</title>
+    <title>L'Esprit de la Tarasque — Association de Jeux de Rôle</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
@@ -155,14 +155,15 @@
             font-family: 'Cinzel', serif;
             font-size: 0.65rem;
             letter-spacing: 0.25em;
-            color: var(--text-muted);
+            color: var(--text-bright);
+            text-shadow: 0 0 12px rgba(232,240,208,0.35);
             text-transform: uppercase;
             opacity: 0;
             animation: fadeIn 0.6s 3.2s both, spPulse 2s 3.8s ease-in-out infinite;
         }
         @keyframes spPulse {
-            0%, 100% { opacity: 0.4; }
-            50%       { opacity: 0.9; }
+            0%, 100% { opacity: 0.6; }
+            50%       { opacity: 1; }
         }
 
         /* ── Nav ─────────────────────────────── */
@@ -647,7 +648,7 @@
     <div class="sp-bg"></div>
     <div class="sp-vignette"></div>
     <div class="sp-content">
-        <h1 class="sp-title">L'Esprit <br>de la<br><em>Tarrasque</em></h1>
+        <h1 class="sp-title">L'Esprit <br>de la<br><em>Tarasque</em></h1>
         <div class="sp-rule">
             <div class="sp-line"></div>
             <div class="sp-gem"></div>
@@ -663,7 +664,7 @@
 <!-- Nav -->
 <nav id="nav">
     <div class="nav-inner">
-        <a href="#" class="nav-brand">L'Esprit de la Tarrasque</a>
+        <a href="#" class="nav-brand">L'Esprit de la Tarasque</a>
         <ul class="nav-links">
             <li><a href="#apropos">À Propos</a></li>
             <li><a href="#jeux">Nos Jeux</a></li>
@@ -679,7 +680,7 @@
     <div class="hero-ambiance"></div>
     <div class="hero-content">
         <p class="hero-eyebrow">Association de Jeux de Rôle</p>
-        <h1 class="hero-h1">L'Esprit <br> de la<br><em>Tarrasque</em></h1>
+        <h1 class="hero-h1">L'Esprit <br> de la<br><em>Tarasque</em></h1>
         <p class="hero-tagline">Là où les légendes prennent vie</p>
         <p class="hero-desc">
             Plongez dans des récits épiques, forgez des héros légendaires
@@ -713,7 +714,7 @@
             <div class="apropos-body reveal">
                 <p>
                     Fondée par un groupe de passionnés partageant l'amour des récits
-                    épiques, L'Esprit de la Tarrasque est une association dédiée au
+                    épiques, L'Esprit de la Tarasque est une association dédiée au
                     jeu de rôle sous toutes ses formes. Du donjon obscur aux étoiles
                     lointaines, nos tables accueillent aventuriers en herbe comme
                     vétérans des mondes imaginaires.
@@ -726,7 +727,7 @@
                 <p>
                     Que vous cherchiez à découvrir votre première partie ou à rejoindre
                     une campagne en cours, l'association vous accompagne avec enthousiasme
-                    et bienveillance. La tarrasque ne choisit pas ses champions — elle les forge.
+                    et bienveillance. La tarasque ne choisit pas ses champions — elle les forge.
                 </p>
             </div>
             <div class="reveal" style="--d:0.18s">
@@ -821,11 +822,11 @@
                 <div class="info-cell">
                     <span class="info-icon">📜</span>
                     <span class="info-key">Contact</span>
-                    <span class="info-val">contact@<br>tarrasque.fr</span>
+                    <span class="info-val">contact@<br>tarasque.fr</span>
                 </div>
             </div>
             <div class="reveal" style="--d:0.3s">
-                <a href="mailto:contact@tarrasque.fr" class="btn-crimson">Envoyer un message</a>
+                <a href="mailto:contact@tarasque.fr" class="btn-crimson">Envoyer un message</a>
             </div>
         </div>
     </div>
@@ -833,7 +834,7 @@
 
 <!-- Footer -->
 <footer id="footer">
-    <p class="footer-name">L'Esprit de la Tarrasque</p>
+    <p class="footer-name">L'Esprit de la Tarasque</p>
     <p class="footer-copy">Association de jeux de rôle &nbsp;·&nbsp; Tous droits réservés © 2025</p>
 </footer>
 
@@ -872,7 +873,7 @@ class Ember {
         this.age = 0;
         this.life = Math.random() * 220 + 100;
         this.hue = Math.random() < 0.55
-            ? Math.random() * 25 + 35   // 35–60 ambre (aura de la Tarrasque)
+            ? Math.random() * 25 + 35   // 35–60 ambre (aura de la Tarasque)
             : Math.random() * 25 + 168; // 168–193 cyan-vert (champignons)
 
     }
