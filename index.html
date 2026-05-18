@@ -11,23 +11,23 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --bg-void: #060402;
-            --bg-deep: #0e0a06;
-            --bg-card: #1c1509;
-            --bg-card-hover: #241c0e;
-            --gold-bright: #e8bc52;
-            --gold: #c09030;
-            --gold-dim: #8a6520;
-            --gold-dark: #4a3512;
-            --crimson: #6e1c1c;
-            --crimson-bright: #aa2828;
-            --crimson-glow: rgba(170,40,40,0.25);
-            --text-bright: #f8edda;
-            --text-primary: #e0c890;
-            --text-secondary: #9a7848;
-            --text-muted: #5a3e28;
-            --border: rgba(192,144,48,0.2);
-            --border-bright: rgba(232,188,82,0.45);
+            --bg-void: #040a04;
+            --bg-deep: #091408;
+            --bg-card: #0f1c0c;
+            --bg-card-hover: #162412;
+            --gold-bright: #e8a030;
+            --gold: #b07820;
+            --gold-dim: #7a5210;
+            --gold-dark: #3e2c08;
+            --crimson: #146870;
+            --crimson-bright: #40c8d0;
+            --crimson-glow: rgba(64,200,208,0.22);
+            --text-bright: #e8f0d0;
+            --text-primary: #b8cc8c;
+            --text-secondary: #789050;
+            --text-muted: #4a5e30;
+            --border: rgba(72,160,80,0.2);
+            --border-bright: rgba(100,190,100,0.45);
             --pad-x: clamp(1.5rem, 6vw, 5rem);
             --pad-sec: clamp(5rem, 10vw, 9rem);
         }
@@ -134,7 +134,7 @@
         .hero-ambiance {
             position: absolute;
             width: 800px; height: 400px;
-            background: radial-gradient(ellipse, rgba(110,28,0,0.08) 0%, transparent 70%);
+            background: radial-gradient(ellipse, rgba(20,80,20,0.1) 0%, transparent 70%);
             top: 50%; left: 50%;
             transform: translate(-50%,-50%);
             pointer-events: none;
@@ -728,7 +728,10 @@ class Ember {
         this.r  = Math.random() * 1.8 + 0.4;
         this.age = 0;
         this.life = Math.random() * 220 + 100;
-        this.hue = Math.random() * 35 + 15;
+        this.hue = Math.random() < 0.55
+            ? Math.random() * 25 + 35   // 35–60 ambre (aura de la Tarrasque)
+            : Math.random() * 25 + 168; // 168–193 cyan-vert (champignons)
+
     }
     step() {
         this.x += this.vx + Math.sin(this.age * 0.04) * 0.4;
